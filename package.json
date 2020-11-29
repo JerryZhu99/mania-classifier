@@ -1,0 +1,17 @@
+{
+  "name": "mania-map-classifier",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "preprocess": "node . -p",
+    "train": "node . -t -s",
+    "predict": "node . -l -f"
+  },
+  "author": "Jerry Zhu",
+  "license": "MIT",
+  "dependencies": {
+    "@tensorflow/tfjs-node": "^2.7.0",
+    "@tensorflow/tfjs-node-gpu": "^2.7.0"
+  }
+}
