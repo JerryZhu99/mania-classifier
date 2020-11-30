@@ -45,7 +45,7 @@ const args = process.argv.slice(2);
     const map = await loadBeatmap(args[args.indexOf('-f') + 1])
     const ranges = await loadTrainingDataRanges();
     const normalizedData = normalizeFn(ranges)(map)['xs']
-    const prediction = model.predict(tf.tensor(normalizedData, [1, 4]));
+    const prediction = model.predict(tf.tensor(normalizedData, [1, ranges.attributes.length]));
     const result = await prediction.array();
     for (let i in ranges.categories) {
       const category = ranges.categories[i];

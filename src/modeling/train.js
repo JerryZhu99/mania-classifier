@@ -35,7 +35,7 @@ async function trainModel() {
 
 
   const model = tf.sequential();
-  model.add(tf.layers.dense({ units: 250, activation: 'relu', inputShape: [4] }));
+  model.add(tf.layers.dense({ units: 250, activation: 'relu', inputShape: [ranges.attributes.length] }));
   model.add(tf.layers.dense({ units: 175, activation: 'relu' }));
   model.add(tf.layers.dense({ units: 150, activation: 'relu' }));
   model.add(tf.layers.dense({ units: numClasses, activation: 'softmax' }));
@@ -47,27 +47,24 @@ async function trainModel() {
   });
 
 
-  function calcClassEval(classIndex, classSize, values) {
-    let index = (classIndex * classSize * numClasses) + classIndex;
+  function calcClassEval(classIndex, indices, values) {
     let total = 0;
-    for (let i = 0; i < classSize; i++) {
-      total += values[index];
-      index += numClasses;
+    for (let i of indices) {
+      total += values[i * numClasses + classIndex];
     }
-    return total / classSize;
+    return total / indices.length;
   }
 
 
 
   async function evaluate(useTestData) {
     const results = {};
-    await trainingValidationData.forEachAsync(pitchTypeBatch => {
-      const values = model.predict(pitchTypeBatch.xs).dataSync();
-      const classSize = data.length / numClasses;
-      for (let i = 0; i < numClasses; i++) {
-        results[categories[i]] = {
-          training: calcClassEval(i, classSize, values)
-        };
+    await trainingValidationData.forEachAsync(mapBatch => {
+      const values = model.predict(mapBatch.xs).dataSync();
+      for (let c = 0; c < categories.length; c++) {
+        const category = categories[c];
+        const indices = data.map((e, i) => [e, i]).filter(([e, i]) => e.type == category).map(([e, i]) => i);
+        results[category] = calcClassEval(c, indices, values);
       }
     });
     return results;
@@ -79,12 +76,12 @@ async function trainModel() {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
 
-  let numTrainingIterations = 40;
+  let numTrainingIterations = 100;
   for (var i = 0; i < numTrainingIterations; i++) {
     console.log(`Training iteration : ${i + 1} / ${numTrainingIterations}`);
     await model.fitDataset(trainingData, { epochs: 1 });
     console.log('accuracyPerClass', await evaluate());
-    await sleep(TIMEOUT_BETWEEN_EPOCHS_MS);
+    // await sleep(TIMEOUT_BETWEEN_EPOCHS_MS);
   }
 
   return model;

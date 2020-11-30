@@ -1,6 +1,6 @@
 const { promises: fs, lstatSync } = require('fs');
 const path = require('path');
-const { parseBeatmap } = require('./utils');
+const { parseBeatmap } = require('./parser');
 
 async function loadBeatmap(fileName) {
   const file = await fs.readFile(fileName, { encoding: 'utf-8' });

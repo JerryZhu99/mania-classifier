@@ -42,7 +42,9 @@ function parseBeatmap(data) {
 
   const metadata = formatMetadata({ artist, title, creator, version });
 
+  // Jack Metrics
   let jackPercent = 0;
+  let pureJackPercent = 0;
   {
     const maxDeltas = [];
     for (let i = 0; i < keyCount; i++) {
@@ -63,6 +65,7 @@ function parseBeatmap(data) {
         const deltaColumn = notes[i].time - notes[i].prev.time;
         const emptyRatio = Math.min(1, (maxDelta / deltaColumn));
         notes[i].jackPercent = emptyRatio
+        notes[i].pureJackPercent = Math.max(0, 2 * emptyRatio - 1);
       }
       maxDeltas[notes[i].column] = 0;
     }
@@ -70,9 +73,35 @@ function parseBeatmap(data) {
     const jackNotes = notes.filter(e => Number.isFinite(e.jackPercent));
     if (jackNotes.length > 0) {
       jackPercent = jackNotes.map(e => e.jackPercent).reduce((a, b) => (a + b), 0) / jackNotes.length;
+      pureJackPercent = jackNotes.map(e => e.pureJackPercent).reduce((a, b) => (a + b), 0) / jackNotes.length;
     }
   }
 
+  // Chord metrics
+  const noteCount = notes.length;
+  let chord1Percent = 0;
+  let chord2Percent = 0;
+  let chord3Percent = 0;
+  let chord4Percent = 0;
+  let noteDensity = 0;
+  let chordDensity = 0;
+  {
+    let noteCountsMap = new Map();
+    notes.forEach(e => {
+      noteCountsMap.set(e.time, (noteCountsMap.get(e.time) || 0) + 1);
+    });
+
+    let noteCounts = [...noteCountsMap.values()];
+    if (noteCounts.length !== 0) {
+      chord1Percent = noteCounts.filter(e => e === 1).length / noteCounts.length;
+      chord2Percent = noteCounts.filter(e => e === 2).length / noteCounts.length;
+      chord3Percent = noteCounts.filter(e => e === 3).length / noteCounts.length;
+      chord4Percent = noteCounts.filter(e => e === 4).length / noteCounts.length;
+
+      chordDensity = 1000 * noteCounts.length / (length)
+      noteDensity = 1000 * notes.length / (length)
+    }
+  }
 
   return {
     metadata,
@@ -86,8 +115,16 @@ function parseBeatmap(data) {
     hpDrain,
     keyCount,
     lnPercent,
-    jackPercent,
     length,
+    noteCount,
+    noteDensity,
+    chordDensity,
+    jackPercent,
+    pureJackPercent,
+    chord1Percent,
+    chord2Percent,
+    chord3Percent,
+    chord4Percent,
   };
 }
 

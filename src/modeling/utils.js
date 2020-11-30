@@ -11,15 +11,12 @@ function normalize(value, min, max) {
 
 
 function normalizeFn(ranges) {
-  const { minOD, maxOD, minHP, maxHP, minLN, maxLN, minJack, maxJack, categories } = ranges
+  const { attributes, categories } = ranges
 
   const transform = (e) => {
-    const values = [
-      normalize(e.overallDifficulty, minOD, maxOD),
-      normalize(e.hpDrain, minHP, maxHP),
-      normalize(e.lnPercent, minLN, maxLN),
-      normalize(e.jackPercent, minJack, maxJack),
-    ];
+    const values = attributes.map(attr => (
+      normalize(e[attr.name], attr.min, attr.max)
+    ));
     return { xs: values, ys: categories.indexOf(e.type) };
   }
   return transform
