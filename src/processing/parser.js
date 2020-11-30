@@ -37,10 +37,33 @@ function parseBeatmap(data) {
       return { time, endTime, column, isLN };
     });
 
-  const lnPercent = notes.filter(e => e.isLN).length / Math.max(1, notes.length);
+  const metadata = formatMetadata({ artist, title, creator, version });
   const length = notes.length === 0 ? 0 : notes[notes.length - 1].endTime - notes[0].time;
 
-  const metadata = formatMetadata({ artist, title, creator, version });
+  // LN Metrics
+  const lnPercent = notes.filter(e => e.isLN).length / Math.max(1, notes.length);
+  let startDuringLNPercent = 0;
+  let endDuringLNPercent = 0;
+  if (notes.length > 0) {
+    let lastEndNotes = new Array(keyCount);
+    for (let i = 0; i < notes.length; i++) {
+      for (let lastEnd of lastEndNotes) {
+        if (!lastEnd) continue;
+        if (notes[i].time < lastEnd.endTime) {
+          notes[i].startDuringLN = true;
+        }
+        if (notes[i].endTime < lastEnd.endTime) {
+          notes[i].endDuringLN = true;
+        }
+        if (notes[i].time < lastEnd.endTime && notes[i].endTime > lastEnd.endTime) {
+          lastEnd.endDuringLN = true;
+        }
+      }
+      lastEndNotes[notes[i].column] = notes[i];
+    }
+    startDuringLNPercent = notes.filter(e => e.startDuringLN).length / (notes.length - 1);
+    endDuringLNPercent = notes.filter(e => e.endDuringLN).length / (notes.length - 1);
+  }
 
   // Jack Metrics
   let jackPercent = 0;
@@ -98,8 +121,8 @@ function parseBeatmap(data) {
       chord3Percent = noteCounts.filter(e => e === 3).length / noteCounts.length;
       chord4Percent = noteCounts.filter(e => e === 4).length / noteCounts.length;
 
-      chordDensity = 1000 * noteCounts.length / (length)
-      noteDensity = 1000 * notes.length / (length)
+      chordDensity = 1000 * noteCounts.length / length
+      noteDensity = 1000 * notes.length / length
     }
   }
 
@@ -115,6 +138,8 @@ function parseBeatmap(data) {
     hpDrain,
     keyCount,
     lnPercent,
+    startDuringLNPercent,
+    endDuringLNPercent,
     length,
     noteCount,
     noteDensity,

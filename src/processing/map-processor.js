@@ -6,7 +6,7 @@ const { loadFolder } = require('./file-utils')
 async function processRawData() {
   const chordjack = await loadFolder('data/raw/chordjack');
   const stream = await loadFolder('data/raw/stream');
-  const jumpstream = await loadFolder('data/raw/jumpstream');
+  const chordstream = await loadFolder('data/raw/chordstream');
   const longjack = await loadFolder('data/raw/longjack');
   const minijack = await loadFolder('data/raw/minijack');
   const vibro = await loadFolder('data/raw/vibro');
@@ -18,7 +18,7 @@ async function processRawData() {
   let data = [
     ...chordjack.map(e => ({ ...e, type: "chordjack" })),
     ...stream.map(e => ({ ...e, type: "stream" })),
-    ...jumpstream.map(e => ({ ...e, type: "jumpstream" })),
+    ...chordstream.map(e => ({ ...e, type: "chordstream" })),
     ...longjack.map(e => ({ ...e, type: "longjack" })),
     ...minijack.map(e => ({ ...e, type: "minijack" })),
     ...vibro.map(e => ({ ...e, type: "vibro" })),
@@ -38,6 +38,8 @@ async function processRawData() {
     'noteDensity',
     'chordDensity',
     'lnPercent',
+    'startDuringLNPercent',
+    'endDuringLNPercent',
     'jackPercent',
     'pureJackPercent',
     'chord1Percent',
