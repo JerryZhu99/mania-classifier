@@ -7,7 +7,8 @@
     "preprocess": "node . -p",
     "train": "node . -t -s",
     "predict": "node . -l -f",
-    "build": "webpack"
+    "build": "webpack",
+    "deploy": "cd dist && git add . && git commit -m 'deploy' && git push origin gh-pages"
   },
   "author": "Jerry Zhu",
   "license": "MIT",
