@@ -6,12 +6,18 @@
   "scripts": {
     "preprocess": "node . -p",
     "train": "node . -t -s",
-    "predict": "node . -l -f"
+    "predict": "node . -l -f",
+    "build": "webpack"
   },
   "author": "Jerry Zhu",
   "license": "MIT",
   "dependencies": {
     "@tensorflow/tfjs-node": "^2.7.0",
     "@tensorflow/tfjs-node-gpu": "^2.7.0"
+  },
+  "devDependencies": {
+    "copy-webpack-plugin": "^6.3.2",
+    "webpack": "^5.9.0",
+    "webpack-cli": "^4.2.0"
   }
 }
